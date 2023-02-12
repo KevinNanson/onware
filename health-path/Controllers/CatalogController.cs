@@ -48,7 +48,8 @@ public class CatalogController : ControllerBase
                 productRecord.ProductName,
                 productRecord.CompanyName,
                 productRecord.Active,
-                purposes.GetValueOrDefault(productRecord.Id, ImmutableList<string>.Empty)
+                purposes.GetValueOrDefault(productRecord.Id, ImmutableList<string>.Empty),
+                "Route"
             ));
         }
 
