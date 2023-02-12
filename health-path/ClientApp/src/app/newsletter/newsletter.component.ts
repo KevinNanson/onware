@@ -65,10 +65,8 @@ export class NewsletterComponent implements OnInit {
               if (!success) {                
                 this.email.setErrors({[ALREADY_SUBSCRIBED]: true});
                 }
-
               }
-            }
-          });
+            })
       }
     }
   }
