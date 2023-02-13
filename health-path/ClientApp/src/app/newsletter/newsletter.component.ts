@@ -19,6 +19,7 @@ export class NewsletterComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  
   getErrorMessage() {
     if (this.email.errors?.['required']) {
       return "Email is required";
@@ -30,20 +31,42 @@ export class NewsletterComponent implements OnInit {
       return "";
     }
   }
+  isGmail(email: string){
+    // check if the last @ symbol includes gmail.com (case-insenstive)     
+    var gmailExp = RegExp("(@gmail.com$)", "i")
+    var test = gmailExp.test(email)
+    return test
+  }
+  stripPeriods(email: string){
+    var expr = RegExp("(.+)(@gmail.com$)", "i")
+    // Strip any periods from the email address
+    // This will force the email to be saved without periods
+    // If in the future we want to allow searching for emails
+    // based on what is entered, this may need to be revisited.
+
+    let prefix = email.match(expr)![1].replace("\.", "")
+    let suffix = email.match(expr)![2]     
+    return prefix + suffix
+  }
 
   subscribe() {
     if (this.email.valid) {
-      const email = this.email.value;
+      var email = this.email.value;
+      
       if (email) {
+        // If this is a gmail address, strip any periods from it.
+        if (this.isGmail(email)) {
+          email = this.stripPeriods(email)          
+        }
         this.newsletterService.subscribe(email)
           .subscribe({
             next: success => 
             {
-              if (!success) {
+              if (!success) {                
                 this.email.setErrors({[ALREADY_SUBSCRIBED]: true});
+                }
               }
-            }
-          });
+            })
       }
     }
   }

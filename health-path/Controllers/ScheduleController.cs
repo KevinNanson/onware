@@ -22,13 +22,22 @@ public class ScheduleController : ControllerBase
     public ActionResult<IEnumerable<ScheduleEvent>> Fetch()
     {
         var dbResults = ReadData();
+        // group the items by key, so we can append the results appropriately
+        IEnumerable<IGrouping<System.Guid,(ScheduleEvent, ScheduleEventRecurrence)>> query = dbResults.GroupBy(e=>e.Item1.Id);
+        List<ScheduleEvent> results = new List<ScheduleEvent>();
+        foreach(IGrouping<System.Guid,(ScheduleEvent, ScheduleEventRecurrence)> key in query){
+            var items = key.ToList();
+            ScheduleEvent item = items[0].Item1;
+            // Reset the Recurrences so we don't get duplicates in the end result
+            item.Recurrences.Clear();
+            foreach ((ScheduleEvent,ScheduleEventRecurrence)subItem in key){                
+                item.Recurrences.Add(subItem.Item2);
+            }
+            results.Add(item);
 
-        var preparedResults = dbResults.Select((t) => {
-            t.Item1.Recurrences.Add(t.Item2);
-            return t.Item1;
-        });
-
-        return Ok(preparedResults);
+        }
+        
+       return Ok(results);
     }
 
     private IEnumerable<(ScheduleEvent, ScheduleEventRecurrence)> ReadData() {
